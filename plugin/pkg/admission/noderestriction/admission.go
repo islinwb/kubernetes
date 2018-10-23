@@ -21,6 +21,7 @@ import (
 	"io"
 	"strings"
 
+	"k8s.io/api/core/v1"
 	apiequality "k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -40,7 +41,6 @@ import (
 	"k8s.io/kubernetes/pkg/apis/policy"
 	"k8s.io/kubernetes/pkg/auth/nodeidentifier"
 	"k8s.io/kubernetes/pkg/features"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 )
 
 const (
@@ -434,7 +434,7 @@ func (c *nodePlugin) getForbiddenCreateLabels(modifiedLabels sets.String) sets.S
 	for label := range modifiedLabels {
 		namespace := getLabelNamespace(label)
 		// forbid kubelets from setting node-restriction labels
-		if namespace == kubeletapis.LabelNamespaceNodeRestriction || strings.HasSuffix(namespace, "."+kubeletapis.LabelNamespaceNodeRestriction) {
+		if namespace == v1.LabelNamespaceNodeRestriction || strings.HasSuffix(namespace, "."+v1.LabelNamespaceNodeRestriction) {
 			forbiddenLabels.Insert(label)
 		}
 	}
@@ -451,11 +451,11 @@ func (c *nodePlugin) getForbiddenUpdateLabels(modifiedLabels sets.String) sets.S
 	for label := range modifiedLabels {
 		namespace := getLabelNamespace(label)
 		// forbid kubelets from setting node-restriction labels
-		if namespace == kubeletapis.LabelNamespaceNodeRestriction || strings.HasSuffix(namespace, "."+kubeletapis.LabelNamespaceNodeRestriction) {
+		if namespace == v1.LabelNamespaceNodeRestriction || strings.HasSuffix(namespace, "."+v1.LabelNamespaceNodeRestriction) {
 			forbiddenLabels.Insert(label)
 		}
 		// forbid kubelets from setting unknown kubernetes.io and k8s.io labels on update
-		if isKubernetesLabel(label) && !kubeletapis.IsKubeletLabel(label) {
+		if isKubernetesLabel(label) && !v1.IsKubeletLabel(label) {
 			// TODO: defer to label policy once available
 			forbiddenLabels.Insert(label)
 		}
