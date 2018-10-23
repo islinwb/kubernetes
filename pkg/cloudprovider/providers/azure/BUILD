@@ -38,10 +38,10 @@ go_library(
     deps = [
         "//pkg/api/v1/service:go_default_library",
         "//pkg/cloudprovider/providers/azure/auth:go_default_library",
-        "//pkg/kubelet/apis:go_default_library",
         "//pkg/version:go_default_library",
         "//pkg/volume:go_default_library",
         "//pkg/volume/util:go_default_library",
+        "//staging/src/k8s.io/api:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/api/resource:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/runtime:go_default_library",
@@ -95,7 +95,7 @@ go_test(
     deps = [
         "//pkg/api/v1/service:go_default_library",
         "//pkg/cloudprovider/providers/azure/auth:go_default_library",
-        "//pkg/kubelet/apis:go_default_library",
+        "//staging/src/k8s.io/api:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/types:go_default_library",

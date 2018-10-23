@@ -37,6 +37,7 @@ go_library(
         "//pkg/kubelet/metrics:go_default_library",
         "//pkg/util/slice:go_default_library",
         "//pkg/volume/util:go_default_library",
+        "//staging/src/k8s.io/api:go_default_library",
         "//staging/src/k8s.io/api/apps/v1:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/api/extensions/v1beta1:go_default_library",

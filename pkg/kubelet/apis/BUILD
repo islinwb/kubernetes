@@ -10,7 +10,6 @@ go_library(
     srcs = [
         "well_known_annotations.go",
         "well_known_annotations_windows.go",
-        "well_known_labels.go",
     ],
     importpath = "k8s.io/kubernetes/pkg/kubelet/apis",
     deps = select({

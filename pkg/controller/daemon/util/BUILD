@@ -44,8 +44,8 @@ go_test(
     deps = [
         "//pkg/api/testapi:go_default_library",
         "//pkg/features:go_default_library",
-        "//pkg/kubelet/apis:go_default_library",
         "//pkg/scheduler/api:go_default_library",
+        "//staging/src/k8s.io/api:go_default_library",
         "//staging/src/k8s.io/api/core/v1:go_default_library",
         "//staging/src/k8s.io/api/extensions/v1beta1:go_default_library",
         "//staging/src/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",

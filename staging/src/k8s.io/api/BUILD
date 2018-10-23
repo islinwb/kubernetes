@@ -1,8 +1,9 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_test(
     name = "go_default_test",
     srcs = ["roundtrip_test.go"],
+    embed = [":go_default_library"],
     deps = [
         "//staging/src/k8s.io/api/admission/v1beta1:go_default_library",
         "//staging/src/k8s.io/api/admissionregistration/v1alpha1:go_default_library",
@@ -93,5 +94,13 @@ filegroup(
         "//staging/src/k8s.io/api/storage/v1beta1:all-srcs",
     ],
     tags = ["automanaged"],
+    visibility = ["//visibility:public"],
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["well_known_labels.go"],
+    importmap = "k8s.io/kubernetes/vendor/k8s.io/api",
+    importpath = "k8s.io/api",
     visibility = ["//visibility:public"],
 )
