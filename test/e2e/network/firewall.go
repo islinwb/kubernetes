@@ -24,7 +24,6 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	cloudprovider "k8s.io/cloud-provider"
 	gcecloud "k8s.io/kubernetes/pkg/cloudprovider/providers/gce"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/kubernetes/pkg/master/ports"
 	"k8s.io/kubernetes/test/e2e/framework"
 	"k8s.io/kubernetes/test/e2e/framework/providers/gce"
@@ -141,7 +140,7 @@ var _ = SIGDescribe("Firewall rule", func() {
 		// Instance could run in a different zone in multi-zone test. Figure out which zone
 		// it is in before proceeding.
 		zone := cloudConfig.Zone
-		if zoneInLabel, ok := nodeList.Items[0].Labels[kubeletapis.LabelZoneFailureDomain]; ok {
+		if zoneInLabel, ok := nodeList.Items[0].Labels[v1.LabelZoneFailureDomain]; ok {
 			zone = zoneInLabel
 		}
 		removedTags := gce.SetInstanceTags(cloudConfig, nodesNames[0], zone, []string{})

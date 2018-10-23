@@ -20,11 +20,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"encoding/json"
 
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/core/v1"
@@ -38,8 +37,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
 	podutil "k8s.io/kubernetes/pkg/api/v1/pod"
-	"k8s.io/kubernetes/pkg/kubelet/apis"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/kubernetes/pkg/volume/util"
 	"k8s.io/kubernetes/test/e2e/framework"
 	"k8s.io/kubernetes/test/e2e/storage/testsuites"
@@ -203,10 +200,10 @@ func testZonalFailover(c clientset.Interface, ns string) {
 	nodeName := pod.Spec.NodeName
 	node, err := c.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
 	Expect(err).ToNot(HaveOccurred())
-	podZone := node.Labels[apis.LabelZoneFailureDomain]
+	podZone := node.Labels[v1.LabelZoneFailureDomain]
 
 	By("tainting nodes in the zone the pod is scheduled in")
-	selector := labels.SelectorFromSet(labels.Set(map[string]string{apis.LabelZoneFailureDomain: podZone}))
+	selector := labels.SelectorFromSet(labels.Set(map[string]string{v1.LabelZoneFailureDomain: podZone}))
 	nodesInZone, err := c.CoreV1().Nodes().List(metav1.ListOptions{LabelSelector: selector.String()})
 	Expect(err).ToNot(HaveOccurred())
 	removeTaintFunc := addTaint(c, ns, nodesInZone.Items, podZone)
@@ -235,7 +232,7 @@ func testZonalFailover(c clientset.Interface, ns string) {
 		if err != nil {
 			return false, nil
 		}
-		newPodZone := node.Labels[apis.LabelZoneFailureDomain]
+		newPodZone := node.Labels[v1.LabelZoneFailureDomain]
 		return newPodZone == otherZone, nil
 	})
 	Expect(err).NotTo(HaveOccurred(), "Error waiting for pod to be scheduled in a different zone (%q): %v", otherZone, err)
@@ -317,9 +314,9 @@ func testRegionalDelayedBinding(c clientset.Interface, ns string) {
 	if node == nil {
 		framework.Failf("unexpected nil node found")
 	}
-	zone, ok := node.Labels[kubeletapis.LabelZoneFailureDomain]
+	zone, ok := node.Labels[v1.LabelZoneFailureDomain]
 	if !ok {
-		framework.Failf("label %s not found on Node", kubeletapis.LabelZoneFailureDomain)
+		framework.Failf("label %s not found on Node", v1.LabelZoneFailureDomain)
 	}
 	checkZoneFromLabelAndAffinity(pv, zone, false)
 }
@@ -368,9 +365,9 @@ func testRegionalAllowedTopologiesWithDelayedBinding(c clientset.Interface, ns s
 	if node == nil {
 		framework.Failf("unexpected nil node found")
 	}
-	nodeZone, ok := node.Labels[kubeletapis.LabelZoneFailureDomain]
+	nodeZone, ok := node.Labels[v1.LabelZoneFailureDomain]
 	if !ok {
-		framework.Failf("label %s not found on Node", kubeletapis.LabelZoneFailureDomain)
+		framework.Failf("label %s not found on Node", v1.LabelZoneFailureDomain)
 	}
 	zoneFound := false
 	for _, zone := range topoZones {
@@ -409,7 +406,7 @@ func addAllowedTopologiesToStorageClass(c clientset.Interface, sc *storage.Stora
 	term := v1.TopologySelectorTerm{
 		MatchLabelExpressions: []v1.TopologySelectorLabelRequirement{
 			{
-				Key:    kubeletapis.LabelZoneFailureDomain,
+				Key:    v1.LabelZoneFailureDomain,
 				Values: zones,
 			},
 		},
@@ -571,7 +568,7 @@ func waitForStatefulSetReplicasNotReady(statefulSetName, ns string, c clientset.
 // If match is true, check if zones in PV exactly match zones given.
 // Otherwise, check whether zones in PV is superset of zones given.
 func verifyZonesInPV(volume *v1.PersistentVolume, zones sets.String, match bool) error {
-	pvZones, err := util.LabelZonesToSet(volume.Labels[apis.LabelZoneFailureDomain])
+	pvZones, err := util.LabelZonesToSet(volume.Labels[v1.LabelZoneFailureDomain])
 	if err != nil {
 		return err
 	}

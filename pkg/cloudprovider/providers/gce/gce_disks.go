@@ -23,24 +23,22 @@ import (
 	"net/http"
 	"strings"
 
-	"k8s.io/api/core/v1"
-
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/sets"
-	cloudprovider "k8s.io/cloud-provider"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
-	"k8s.io/kubernetes/pkg/volume"
-	volumeutil "k8s.io/kubernetes/pkg/volume/util"
-
 	"github.com/golang/glog"
 	computebeta "google.golang.org/api/compute/v0.beta"
 	compute "google.golang.org/api/compute/v1"
 	"google.golang.org/api/googleapi"
+
+	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/sets"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/kubernetes/pkg/cloudprovider/providers/gce/cloud"
 	"k8s.io/kubernetes/pkg/cloudprovider/providers/gce/cloud/meta"
 	"k8s.io/kubernetes/pkg/features"
+	"k8s.io/kubernetes/pkg/volume"
+	volumeutil "k8s.io/kubernetes/pkg/volume/util"
 )
 
 type DiskType string
@@ -517,7 +515,7 @@ func (gce *GCECloud) GetLabelsForVolume(ctx context.Context, pv *v1.PersistentVo
 	}
 
 	// If the zone is already labeled, honor the hint
-	zone := pv.Labels[kubeletapis.LabelZoneFailureDomain]
+	zone := pv.Labels[v1.LabelZoneFailureDomain]
 
 	labels, err := gce.GetAutoLabelsForPD(pv.Spec.GCEPersistentDisk.PDName, zone)
 	if err != nil {
@@ -846,16 +844,16 @@ func (gce *GCECloud) GetAutoLabelsForPD(name string, zone string) (map[string]st
 			// Unexpected, but sanity-check
 			return nil, fmt.Errorf("PD did not have zone/region information: %v", disk)
 		}
-		labels[kubeletapis.LabelZoneFailureDomain] = zoneInfo.zone
-		labels[kubeletapis.LabelZoneRegion] = disk.Region
+		labels[v1.LabelZoneFailureDomain] = zoneInfo.zone
+		labels[v1.LabelZoneRegion] = disk.Region
 	case multiZone:
 		if zoneInfo.replicaZones == nil || zoneInfo.replicaZones.Len() <= 0 {
 			// Unexpected, but sanity-check
 			return nil, fmt.Errorf("PD is regional but does not have any replicaZones specified: %v", disk)
 		}
-		labels[kubeletapis.LabelZoneFailureDomain] =
+		labels[v1.LabelZoneFailureDomain] =
 			volumeutil.ZonesSetToLabelValue(zoneInfo.replicaZones)
-		labels[kubeletapis.LabelZoneRegion] = disk.Region
+		labels[v1.LabelZoneRegion] = disk.Region
 	case nil:
 		// Unexpected, but sanity-check
 		return nil, fmt.Errorf("PD did not have ZoneInfo: %v", disk)

@@ -25,13 +25,13 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	cloudprovider "k8s.io/cloud-provider"
+	"k8s.io/cloud-provider"
 	gcecloud "k8s.io/kubernetes/pkg/cloudprovider/providers/gce"
 	"k8s.io/kubernetes/pkg/features"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	utilfile "k8s.io/kubernetes/pkg/util/file"
 	"k8s.io/kubernetes/pkg/volume"
 	volumeutil "k8s.io/kubernetes/pkg/volume/util"
@@ -353,8 +353,8 @@ func udevadmChangeToDrive(drivePath string) error {
 // Checks whether the given GCE PD volume spec is associated with a regional PD.
 func isRegionalPD(spec *volume.Spec) bool {
 	if spec.PersistentVolume != nil {
-		zonesLabel := spec.PersistentVolume.Labels[kubeletapis.LabelZoneFailureDomain]
-		zones := strings.Split(zonesLabel, kubeletapis.LabelMultiZoneDelimiter)
+		zonesLabel := spec.PersistentVolume.Labels[v1.LabelZoneFailureDomain]
+		zones := strings.Split(zonesLabel, v1.LabelMultiZoneDelimiter)
 		return len(zones) > 1
 	}
 	return false

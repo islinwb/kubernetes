@@ -19,18 +19,17 @@ package gcepd
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
+
+	"github.com/golang/glog"
 
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/kubernetes/pkg/volume"
 	volumetest "k8s.io/kubernetes/pkg/volume/testing"
-
-	"github.com/golang/glog"
-	"k8s.io/apimachinery/pkg/types"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
-	"strings"
 )
 
 func TestGetDeviceName_Volume(t *testing.T) {
@@ -284,9 +283,9 @@ func createPVSpec(name string, readOnly bool, zones []string) *volume.Spec {
 	}
 
 	if zones != nil {
-		zonesLabel := strings.Join(zones, kubeletapis.LabelMultiZoneDelimiter)
+		zonesLabel := strings.Join(zones, v1.LabelMultiZoneDelimiter)
 		spec.PersistentVolume.ObjectMeta.Labels = map[string]string{
-			kubeletapis.LabelZoneFailureDomain: zonesLabel,
+			v1.LabelZoneFailureDomain: zonesLabel,
 		}
 	}
 

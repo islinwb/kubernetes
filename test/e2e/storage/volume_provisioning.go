@@ -28,22 +28,20 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 
-	apierrs "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/sets"
-
 	"k8s.io/api/core/v1"
 	rbacv1beta1 "k8s.io/api/rbac/v1beta1"
 	storage "k8s.io/api/storage/v1"
 	storagebeta "k8s.io/api/storage/v1beta1"
+	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apiserver/pkg/authentication/serviceaccount"
 	clientset "k8s.io/client-go/kubernetes"
 	storageutil "k8s.io/kubernetes/pkg/apis/storage/v1/util"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	volumeutil "k8s.io/kubernetes/pkg/volume/util"
 	"k8s.io/kubernetes/test/e2e/framework"
 	"k8s.io/kubernetes/test/e2e/framework/providers/gce"
@@ -119,9 +117,9 @@ func checkZonesFromLabelAndAffinity(pv *v1.PersistentVolume, zones sets.String, 
 	if pv == nil {
 		framework.Failf("nil pv passed")
 	}
-	pvLabel, ok := pv.Labels[kubeletapis.LabelZoneFailureDomain]
+	pvLabel, ok := pv.Labels[v1.LabelZoneFailureDomain]
 	if !ok {
-		framework.Failf("label %s not found on PV", kubeletapis.LabelZoneFailureDomain)
+		framework.Failf("label %s not found on PV", v1.LabelZoneFailureDomain)
 	}
 
 	zonesFromLabel, err := volumeutil.LabelZonesToSet(pvLabel)
@@ -129,10 +127,10 @@ func checkZonesFromLabelAndAffinity(pv *v1.PersistentVolume, zones sets.String, 
 		framework.Failf("unable to parse zone labels %s: %v", pvLabel, err)
 	}
 	if matchZones && !zonesFromLabel.Equal(zones) {
-		framework.Failf("value[s] of %s label for PV: %v does not match expected zone[s]: %v", kubeletapis.LabelZoneFailureDomain, zonesFromLabel, zones)
+		framework.Failf("value[s] of %s label for PV: %v does not match expected zone[s]: %v", v1.LabelZoneFailureDomain, zonesFromLabel, zones)
 	}
 	if !matchZones && !zonesFromLabel.IsSuperset(zones) {
-		framework.Failf("value[s] of %s label for PV: %v does not contain expected zone[s]: %v", kubeletapis.LabelZoneFailureDomain, zonesFromLabel, zones)
+		framework.Failf("value[s] of %s label for PV: %v does not contain expected zone[s]: %v", v1.LabelZoneFailureDomain, zonesFromLabel, zones)
 	}
 	if pv.Spec.NodeAffinity == nil {
 		framework.Failf("node affinity not found in PV spec %v", pv.Spec)
@@ -144,7 +142,7 @@ func checkZonesFromLabelAndAffinity(pv *v1.PersistentVolume, zones sets.String, 
 	for _, term := range pv.Spec.NodeAffinity.Required.NodeSelectorTerms {
 		keyFound := false
 		for _, r := range term.MatchExpressions {
-			if r.Key != kubeletapis.LabelZoneFailureDomain {
+			if r.Key != v1.LabelZoneFailureDomain {
 				continue
 			}
 			keyFound = true
@@ -158,7 +156,7 @@ func checkZonesFromLabelAndAffinity(pv *v1.PersistentVolume, zones sets.String, 
 			break
 		}
 		if !keyFound {
-			framework.Failf("label %s not found in term %v", kubeletapis.LabelZoneFailureDomain, term)
+			framework.Failf("label %s not found in term %v", v1.LabelZoneFailureDomain, term)
 		}
 	}
 }
@@ -877,9 +875,9 @@ var _ = utils.SIGDescribe("Dynamic Provisioning", func() {
 				if node == nil {
 					framework.Failf("unexpected nil node found")
 				}
-				zone, ok := node.Labels[kubeletapis.LabelZoneFailureDomain]
+				zone, ok := node.Labels[v1.LabelZoneFailureDomain]
 				if !ok {
-					framework.Failf("label %s not found on Node", kubeletapis.LabelZoneFailureDomain)
+					framework.Failf("label %s not found on Node", v1.LabelZoneFailureDomain)
 				}
 				checkZoneFromLabelAndAffinity(pv, zone, true)
 			}
@@ -954,9 +952,9 @@ var _ = utils.SIGDescribe("Dynamic Provisioning", func() {
 				if node == nil {
 					framework.Failf("unexpected nil node found")
 				}
-				nodeZone, ok := node.Labels[kubeletapis.LabelZoneFailureDomain]
+				nodeZone, ok := node.Labels[v1.LabelZoneFailureDomain]
 				if !ok {
-					framework.Failf("label %s not found on Node", kubeletapis.LabelZoneFailureDomain)
+					framework.Failf("label %s not found on Node", v1.LabelZoneFailureDomain)
 				}
 				if topoZone != nodeZone {
 					framework.Failf("zone specified in allowedTopologies: %s does not match zone of node where PV got provisioned: %s", topoZone, nodeZone)
@@ -1065,7 +1063,7 @@ func addSingleZoneAllowedTopologyToStorageClass(c clientset.Interface, sc *stora
 	term := v1.TopologySelectorTerm{
 		MatchLabelExpressions: []v1.TopologySelectorLabelRequirement{
 			{
-				Key:    kubeletapis.LabelZoneFailureDomain,
+				Key:    v1.LabelZoneFailureDomain,
 				Values: []string{zone},
 			},
 		},

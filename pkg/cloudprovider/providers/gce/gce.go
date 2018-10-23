@@ -48,11 +48,9 @@ import (
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/flowcontrol"
-
 	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/kubernetes/pkg/cloudprovider/providers/gce/cloud"
 	"k8s.io/kubernetes/pkg/controller"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/kubernetes/pkg/version"
 )
 
@@ -697,8 +695,8 @@ func (gce *GCECloud) SetInformers(informerFactory informers.SharedInformerFactor
 		UpdateFunc: func(prev, obj interface{}) {
 			prevNode := prev.(*v1.Node)
 			newNode := obj.(*v1.Node)
-			if newNode.Labels[kubeletapis.LabelZoneFailureDomain] ==
-				prevNode.Labels[kubeletapis.LabelZoneFailureDomain] {
+			if newNode.Labels[v1.LabelZoneFailureDomain] ==
+				prevNode.Labels[v1.LabelZoneFailureDomain] {
 				return
 			}
 			gce.updateNodeZones(prevNode, newNode)
@@ -729,7 +727,7 @@ func (gce *GCECloud) updateNodeZones(prevNode, newNode *v1.Node) {
 	gce.nodeZonesLock.Lock()
 	defer gce.nodeZonesLock.Unlock()
 	if prevNode != nil {
-		prevZone, ok := prevNode.ObjectMeta.Labels[kubeletapis.LabelZoneFailureDomain]
+		prevZone, ok := prevNode.ObjectMeta.Labels[v1.LabelZoneFailureDomain]
 		if ok {
 			gce.nodeZones[prevZone].Delete(prevNode.ObjectMeta.Name)
 			if gce.nodeZones[prevZone].Len() == 0 {
@@ -738,7 +736,7 @@ func (gce *GCECloud) updateNodeZones(prevNode, newNode *v1.Node) {
 		}
 	}
 	if newNode != nil {
-		newZone, ok := newNode.ObjectMeta.Labels[kubeletapis.LabelZoneFailureDomain]
+		newZone, ok := newNode.ObjectMeta.Labels[v1.LabelZoneFailureDomain]
 		if ok {
 			if gce.nodeZones[newZone] == nil {
 				gce.nodeZones[newZone] = sets.NewString()

@@ -17,12 +17,12 @@ limitations under the License.
 package label
 
 import (
-	"testing"
-
 	"fmt"
 	"reflect"
 	"sort"
+	"testing"
 
+	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -30,7 +30,6 @@ import (
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	api "k8s.io/kubernetes/pkg/apis/core"
 	"k8s.io/kubernetes/pkg/cloudprovider/providers/aws"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	volumeutil "k8s.io/kubernetes/pkg/volume/util"
 )
 
@@ -170,7 +169,7 @@ func TestAdmission(t *testing.T) {
 	labels["a"] = "1"
 	labels["b"] = "2"
 	zones, _ := volumeutil.ZonesToSet("1,2,3")
-	labels[kubeletapis.LabelZoneFailureDomain] = volumeutil.ZonesSetToLabelValue(zones)
+	labels[v1.LabelZoneFailureDomain] = volumeutil.ZonesSetToLabelValue(zones)
 	pvHandler.ebsVolumes = mockVolumeLabels(labels)
 	err = handler.Admit(admission.NewAttributesRecord(&awsPV, nil, api.Kind("PersistentVolume").WithVersion("version"), awsPV.Namespace, awsPV.Name, api.Resource("persistentvolumes").WithVersion("version"), "", admission.Create, false, nil))
 	if err != nil {
@@ -197,9 +196,9 @@ func TestAdmission(t *testing.T) {
 	if r == nil || r.Values[0] != "2" || r.Operator != api.NodeSelectorOpIn {
 		t.Errorf("NodeSelectorRequirement b-in-2 not found in volume NodeAffinity")
 	}
-	r, _ = getNodeSelectorRequirementWithKey(kubeletapis.LabelZoneFailureDomain, term)
+	r, _ = getNodeSelectorRequirementWithKey(v1.LabelZoneFailureDomain, term)
 	if r == nil {
-		t.Errorf("NodeSelectorRequirement %s-in-%v not found in volume NodeAffinity", kubeletapis.LabelZoneFailureDomain, zones)
+		t.Errorf("NodeSelectorRequirement %s-in-%v not found in volume NodeAffinity", v1.LabelZoneFailureDomain, zones)
 	}
 	sort.Strings(r.Values)
 	if !reflect.DeepEqual(r.Values, zones.List()) {

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
@@ -47,8 +48,6 @@ import (
 	clientset "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/record"
 
-	"path"
-
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -60,7 +59,6 @@ import (
 	cloudprovider "k8s.io/cloud-provider"
 	"k8s.io/kubernetes/pkg/api/v1/service"
 	"k8s.io/kubernetes/pkg/controller"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/kubernetes/pkg/volume"
 	volumeutil "k8s.io/kubernetes/pkg/volume/util"
 )
@@ -2353,12 +2351,12 @@ func (c *Cloud) GetVolumeLabels(volumeName KubernetesVolumeID) (map[string]strin
 		return nil, fmt.Errorf("volume did not have AZ information: %q", aws.StringValue(info.VolumeId))
 	}
 
-	labels[kubeletapis.LabelZoneFailureDomain] = az
+	labels[v1.LabelZoneFailureDomain] = az
 	region, err := azToRegion(az)
 	if err != nil {
 		return nil, err
 	}
-	labels[kubeletapis.LabelZoneRegion] = region
+	labels[v1.LabelZoneRegion] = region
 
 	return labels, nil
 }

@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/golang/glog"
+
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +33,6 @@ import (
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	gcecloud "k8s.io/kubernetes/pkg/cloudprovider/providers/gce"
 	"k8s.io/kubernetes/pkg/features"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/kubernetes/pkg/util/mount"
 	kstrings "k8s.io/kubernetes/pkg/util/strings"
 	"k8s.io/kubernetes/pkg/volume"
@@ -532,7 +532,7 @@ func (c *gcePersistentDiskProvisioner) Provision(selectedNode *v1.Node, allowedT
 		for k, v := range labels {
 			pv.Labels[k] = v
 			var values []string
-			if k == kubeletapis.LabelZoneFailureDomain {
+			if k == v1.LabelZoneFailureDomain {
 				values, err = util.LabelZonesToList(v)
 				if err != nil {
 					return nil, fmt.Errorf("failed to convert label string for Zone: %s to a List: %v", v, err)
