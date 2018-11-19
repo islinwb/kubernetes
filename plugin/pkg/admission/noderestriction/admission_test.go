@@ -40,7 +40,6 @@ import (
 	"k8s.io/kubernetes/pkg/apis/policy"
 	"k8s.io/kubernetes/pkg/auth/nodeidentifier"
 	"k8s.io/kubernetes/pkg/features"
-	kubeletapis "k8s.io/kubernetes/pkg/kubelet/apis"
 	"k8s.io/utils/pointer"
 )
 
@@ -170,10 +169,10 @@ func setAllowedUpdateLabels(node *api.Node, value string) *api.Node {
 	node.Labels["foo.node.kubernetes.io/foo"] = value
 
 	// test all explicitly allowed labels and prefixes
-	for _, key := range kubeletapis.KubeletLabels() {
+	for _, key := range corev1.KubeletLabels() {
 		node.Labels[key] = value
 	}
-	for _, namespace := range kubeletapis.KubeletLabelNamespaces() {
+	for _, namespace := range corev1.KubeletLabelNamespaces() {
 		node.Labels[namespace+"/foo"] = value
 		node.Labels["foo."+namespace+"/foo"] = value
 	}
