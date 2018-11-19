@@ -10,12 +10,9 @@ go_library(
     srcs = [
         "well_known_annotations.go",
         "well_known_annotations_windows.go",
-        "well_known_labels.go",
     ],
     importpath = "k8s.io/kubernetes/pkg/kubelet/apis",
-    deps = [
-        "//staging/src/k8s.io/apimachinery/pkg/util/sets:go_default_library",
-    ] + select({
+    deps = select({
         "@io_bazel_rules_go//go/platform:windows": [
             "//pkg/features:go_default_library",
             "//staging/src/k8s.io/apiserver/pkg/util/feature:go_default_library",
