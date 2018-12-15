@@ -1,3 +1,7 @@
+_output/bin/e2e.test --host=http://127.0.0.1:8080 --provider=local --ginkgo.v=true --kubeconfig=/root/.kube/config --ginkgo.focus="should create a job from an image, then delete the job"
+
+_output/bin/kubectl --server=http://127.0.0.1:8080 --kubeconfig=/root/.kube/config --namespace=default run e2e-test-rm-busybox-job --image=busybox --rm=true --generator=job/v1 --restart=OnFailure --attach=true --stdin -- sh -c cat && echo 'stdin closed'
+
 # Kubernetes
 
 [![GoDoc Widget]][GoDoc] [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/569/badge)](https://bestpractices.coreinfrastructure.org/projects/569)
