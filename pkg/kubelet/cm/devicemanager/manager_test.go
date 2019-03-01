@@ -471,7 +471,7 @@ func (m *MockEndpoint) preStartContainer(devs []string) (*pluginapi.PreStartCont
 	return &pluginapi.PreStartContainerResponse{}, nil
 }
 
-func (m *MockEndpoint) allocate(devs []string) (*pluginapi.AllocateResponse, error) {
+func (m *MockEndpoint) allocate(podNamespacedName string, devs []string) (*pluginapi.AllocateResponse, error) {
 	if m.allocateFunc != nil {
 		return m.allocateFunc(devs)
 	}
@@ -619,7 +619,7 @@ func TestPodContainerDeviceAllocation(t *testing.T) {
 			expectedContainerOptsLen:  []int{3, 2, 2},
 			expectedAllocatedResName1: 2,
 			expectedAllocatedResName2: 1,
-			expErr: nil,
+			expErr:                    nil,
 		},
 		{
 			description:               "Requesting to create a pod without enough resources should fail",
@@ -627,7 +627,7 @@ func TestPodContainerDeviceAllocation(t *testing.T) {
 			expectedContainerOptsLen:  nil,
 			expectedAllocatedResName1: 2,
 			expectedAllocatedResName2: 1,
-			expErr: fmt.Errorf("requested number of devices unavailable for domain1.com/resource1. Requested: 1, Available: 0"),
+			expErr:                    fmt.Errorf("requested number of devices unavailable for domain1.com/resource1. Requested: 1, Available: 0"),
 		},
 		{
 			description:               "Successful allocation of all available Res1 resources and Res2 resources",
@@ -635,7 +635,7 @@ func TestPodContainerDeviceAllocation(t *testing.T) {
 			expectedContainerOptsLen:  []int{0, 0, 1},
 			expectedAllocatedResName1: 2,
 			expectedAllocatedResName2: 2,
-			expErr: nil,
+			expErr:                    nil,
 		},
 	}
 	activePods := []*v1.Pod{}

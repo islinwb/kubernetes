@@ -600,6 +600,7 @@ func (m *ManagerImpl) devicesToAllocate(podUID, contName, resource string, requi
 // and updates the cached containerDevices on success.
 func (m *ManagerImpl) allocateContainerResources(pod *v1.Pod, container *v1.Container, devicesToReuse map[string]sets.String) error {
 	podUID := string(pod.UID)
+	podNamespacedName := fmt.Sprintf("%s/%s", pod.Namespace, pod.Name)
 	contName := container.Name
 	allocatedDevicesUpdated := false
 	// Extended resources are not allowed to be overcommitted.
@@ -654,7 +655,7 @@ func (m *ManagerImpl) allocateContainerResources(pod *v1.Pod, container *v1.Cont
 		// TODO: refactor this part of code to just append a ContainerAllocationRequest
 		// in a passed in AllocateRequest pointer, and issues a single Allocate call per pod.
 		glog.V(3).Infof("Making allocation request for devices %v for device plugin %s", devs, resource)
-		resp, err := e.allocate(devs)
+		resp, err := e.allocate(podNamespacedName, devs)
 		metrics.DevicePluginAllocationLatency.WithLabelValues(resource).Observe(metrics.SinceInMicroseconds(startRPCTime))
 		if err != nil {
 			// In case of allocation failure, we want to restore m.allocatedDevices
